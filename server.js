@@ -1,8 +1,14 @@
 const express = require('express');
+const cors = require('cors')
+
 const Connection = require('./config/Connection');
 const app = express();
+app.use(cors({
+    // origin: 'http://localhost:5500'
+}))
 app.use(express.json()) // LIBERA PASSAGEM DE DADOS PELO BODY
 
+// http://localhost:3000/
 app.get('/', async (req, res) => {
     return res.send("Servidor Backend")
 });
@@ -53,7 +59,7 @@ app.delete('/usuarios/:id', (req, res) => {
     const result = Connection.query(`
         DELETE FROM usuarios WHERE id = ${id}
     `)
-    return res.json(result);
+    return res.json({message: 'Usuario deletado com sucesso.'});
 })
 
 

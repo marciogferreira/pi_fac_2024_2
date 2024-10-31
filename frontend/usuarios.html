@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <h3>Usuarios</h3>
+        <input type="text" class="form-control" placeholder="Pesquisar" id="pesquisa">
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+            Novo usuário
+        </button>
+          
+
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Login</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="lista-usuarios">
+                <tr>
+                    <td>01</td>
+                    <td>Marcio</td>
+                    <td>marcio@gmail.com</td>
+                    <td>
+                        <button>Editar</button>
+                        <button>Excluir</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="staticBackdropLabel">Novo Usuario</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="mb-2">
+                <label for="">Nome</label>
+                <input type="text" id="nome" class="form-control">
+            </div>
+            <div class="mb-2">
+                <label for="">Login</label>
+                <input type="text" id="login" class="form-control">
+            </div>
+            <div class="mb-2">
+                <label for="">Senha</label>
+                <input type="password" id="senha" class="form-control">
+            </div>
+            
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+          <button type="button" class="btn btn-success" id="btn-salvar">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>  
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+    <script src="./libs/messages.js"></script>
+    <script>
+        async function carregarDados() {
+            const response = await fetch('http://localhost:3000/usuarios')
+            const lista = await response.json()
+            console.log(lista)
+            const tabela = document.querySelector('#lista-usuarios')
+            tabela.innerHTML = ''
+            let conteudo = '';
+            for(let i = 0; i < lista.length; i++) {
+                const usuario = lista[i]
+                conteudo += `
+                    <tr>
+                        <td>${usuario.id}</td>
+                        <td>${usuario.nome}</td>
+                        <td>${usuario.login}</td>
+                        <td>
+                            <button>Editar</button>
+                            <button onclick="excluirItem(${usuario.id}, '${usuario.nome}')">Excluir</button>
+                        </td>
+                    </tr>
+                `;
+            }
+            tabela.innerHTML = conteudo
+        }
+        carregarDados()
+
+        async function excluirItem(id, nome) {
+            const check = confirm("Voce deseja deletar o usuario " + nome + "?");
+            if(check) {
+                const response = await fetch('http://localhost:3000/usuarios/'+id, {
+                    method: 'DELETE'
+                })
+                carregarDados()
+            }
+        }
+        
+        document.querySelector("#btn-salvar").addEventListener('click', () => {
+            const nome = document.querySelector("#nome").value
+            const login = document.querySelector("#login").value
+            const senha = document.querySelector("#senha").value
+            const novoUsuario = {
+                nome,
+                login,
+                senha
+            }
+            fetch('http://localhost:3000/usuarios', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(novoUsuario)
+            })
+           .then(response => {
+                console.log(response.json())
+                
+                Message.sucesso("Usuario salvo com sucesso.")
+                
+                carregarDados()
+                document.querySelector("#nome").value = ''
+                document.querySelector("#login").value = ''
+                document.querySelector("#senha").value = ''
+                document.querySelector('#staticBackdrop').modal('hide');
+
+
+            })
+            .catch(error => {
+                Message.error(error)
+                console.log(error)
+            })
+            
+        })
+    </script>
+</body>
+</html>
