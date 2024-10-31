@@ -20,6 +20,16 @@ app.get('/inserir-usuario', async (req, res) => {
     return res.json(dados)
 })
 
+// MIDDLEWARE
+app.use((req, res, next) => {
+    let logado = false;
+    if(logado === false) {
+        return res.send("Não Logado");
+    }
+    // Pode seguir adiante
+    next();
+});
+
 // http://localhost:3000/usuarios
 app.get('/usuarios', UserController.listarUsuarios)
 app.get('/usuarios/:id', UserController.consultarPorId)
