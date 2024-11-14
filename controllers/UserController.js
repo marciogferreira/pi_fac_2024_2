@@ -9,13 +9,13 @@ class UserController {
         } catch(e) {
             return response.status(500).json({ error: 'Ocorreu um erro ao listar usuários.' });
         }
-        
     }
 
     async consultarPorId(request, response) {
         try {
             const id = request.params.id;
             const dados = await UserModel.findByPk(id);
+            
         } catch(e) {
             return response.status(500).json({ error: 'Ocorreu um erro ao listar usuários.' });
         }
